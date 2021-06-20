@@ -6,7 +6,9 @@ PORT=65432
 
 # Display usage for this script
 usage() {
-  echo "Usage: $0 [-h] [-l] [-p PORT]
+  echo "Creates an insecure shell via netcat
+
+Usage: $0 [-h] [-l] [-p PORT]
   -h            Show this screen
   -l            Only allow localhost connections
   -c COMMAND    Command to use when client connects (default: $COMMAND)
