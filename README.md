@@ -6,7 +6,7 @@ Netcat opens a port on the server device connected to an open shell session. Cli
 
 # Features
 - Android support
-- Busybox and Toybox support only (streamline netcat flavors)
+- Few dependencies (mainly just toybox)
 - Local connection filter (only allow localhost connections)
 
 # Android
