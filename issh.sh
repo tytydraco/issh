@@ -18,7 +18,7 @@ Usage: $0 [-h] [-l] [-c COMMAND] [-p PORT] [-t] [-C ADDRESS]
 
 Server options:
   -l            Only allow localhost connections
-  -c COMMAND    Command to run when client connects (default: $COMMAND)
+  -c COMMAND    Command to run when client connects
   -p PORT       Port to listen on (default: $PORT)
 
 Client options:
@@ -51,7 +51,7 @@ while getopts ":hlc:p:tC:" opt; do
   C)
     ADDRESS="$OPTARG"
     [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
-    nc "$ADDRESS" "$PORT"
+    toybox nc "$ADDRESS" "$PORT"
     [[ "$INTERACTIVE" == true ]] && stty sane
     exit 0
     ;;
