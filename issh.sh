@@ -7,6 +7,7 @@ PORT=65432  # Port to open with netcat
 usage() {
   echo "Usage: $0 [-h] [-k] [-l] [-p PORT]
   -h          Show this screen
+  -k          Kill session on port specified by -p
   -l          Only allow localhost connections
   -p PORT     Port to listen for connections on (default: $PORT)"
 }
@@ -18,10 +19,16 @@ then
 fi
 
 # Parse user arguments
-while getopts ":lhp:" opt; do
+while getopts ":hklp:" opt; do
   case "$opt" in
   h)
     usage
+    exit 0
+    ;;
+  k)
+    netstat_details="$(toybox netstat -lpn 2> /dev/null | toybox grep ":$PORT")"
+    session_pid="$(echo "$netstat_details" | toybox sed 's|.* ||; s|/.*||')"
+    [[ -n "$session_pid" ]] && toybox kill "$session_pid"
     exit 0
     ;;
   l)
