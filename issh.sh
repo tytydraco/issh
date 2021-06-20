@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+# Global options
+PORT=65432
+
 # Server options
 LOCAL=false
 COMMAND="sh -li 2>&1"
-PORT=65432
 
 # Client options
 INTERACTIVE=false
@@ -13,13 +15,13 @@ ADDRESS="localhost"
 usage() {
   echo "Insecure shelling via netcat
 
-Usage: $0 [-h] [-l] [-c COMMAND] [-p PORT] [-t] [-C ADDRESS]
+Usage: $0 [-h] [-p PORT] [-l] [-c COMMAND] [-t] [-C ADDRESS]
   -h            Show this screen
+  -p PORT       Port to listen/connect on (default: $PORT)
 
 Server options:
   -l            Only allow localhost connections
   -c COMMAND    Command to run when client connects (default: $COMMAND)
-  -p PORT       Port to listen on (default: $PORT)
 
 Client options:
   -t            Use raw TTY for interactivity
@@ -33,20 +35,20 @@ then
 fi
 
 # Parse user arguments
-while getopts ":hlc:p:tC:" opt; do
+while getopts ":hp:lc:tC:" opt; do
   case "$opt" in
   h)
     usage
     exit 0
+    ;;
+  p)
+    PORT="$OPTARG"
     ;;
   l)
     LOCAL=true
     ;;
   c)
     COMMAND="$OPTARG"
-    ;;
-  p)
-    PORT="$OPTARG"
     ;;
   C)
     ADDRESS="$OPTARG"
