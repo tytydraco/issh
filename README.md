@@ -27,6 +27,12 @@ Client side (i.e. device itself via terminal emulator):
 
 In this case, our client does not need to use a computer to gain adb shell-level access if we have previously opened an issh session.
 
+### Termux
+You can launch an issh session in Termux very easily. However, Termux lacks toybox, so we must add it to our PATH variable.
+
+1) `export PATH="$PATH:/system/bin/toybox"`
+2) `/system/bin/sh issh.sh`
+
 ### But why not use self-connected ADB then (i.e. Termux, LADB, etc.)
 1) Avoiding ADB protocol entirely
 2) Avoiding cross-compiling ADB binary
