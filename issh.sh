@@ -9,8 +9,37 @@ usage() {
   -h          Show this screen
   -k          Kill session on port specified by -p
   -l          Only allow localhost connections
-  -p PORT     Port to listen for connections on (default: $PORT)"
+  -p PORT     Port to listen for connections on (default: $PORT)
+
+  Set environmental variable 'KEY' to require a login key.
+  Example: KEY=mypassword123 $0"
 }
+
+# Gets called when user attempts to connect to us
+login() {
+  local key
+
+  # If server didn't specify a key, launch shell
+  if [[ -z "$KEY" ]]
+  then
+    sh -i
+    exit
+  fi
+
+  # Verify authentication attempts
+  echo "Authentication required. Enter key:"
+  read -r key
+  if [[ "$key" == "$KEY" ]]
+  then
+    clear
+    sh -i
+    exit
+  else
+    echo "Incorrect key."
+    exit 1
+  fi
+}
+export -f login
 
 if ! command -v toybox &> /dev/null
 then
@@ -27,7 +56,7 @@ while getopts ":hklp:" opt; do
     ;;
   k)
     netstat_details="$(toybox netstat -lpn 2> /dev/null | toybox grep ":$PORT")"
-    session_pid="$(echo "$netstat_details" | toybox sed 's|.* ||; s|/.*||')"
+    session_pid="$(echo "$netstat_details" | toybox sed 's|.* ||; s|/.*||; s|-||')"
     [[ -n "$session_pid" ]] && toybox kill "$session_pid"
     exit 0
     ;;
@@ -60,6 +89,6 @@ NCARGS=(
 
 # Execute netcat and fork it
 # shellcheck disable=SC2068
-toybox setsid toybox nc ${NCARGS[@]} sh -c "sh -i 2>&1" &
+toybox setsid toybox nc ${NCARGS[@]} sh -c "login 2>&1" &
 
 echo -e "Done! Use: \e[1mnc localhost $PORT\e[0m"
