@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 LOCAL=false
-COMMAND="sh -li"
+COMMAND="sh -li 2>&1"
 PORT=65432
 
 # Display usage for this script
@@ -63,4 +63,4 @@ NCARGS=()
 echo -e "Connect with: \e[1mnc localhost $PORT\e[0m"
 
 # shellcheck disable=SC2068
-toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "$COMMAND 2>&1"
+toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "$COMMAND"
