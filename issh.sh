@@ -7,7 +7,6 @@ PORT=65432      # Port to open with netcat
 usage() {
   echo "Usage: $0 [-h] [-k] [-l] [-p PORT]
   -h          Show this screen
-  -k          Kill any open netcat sessions
   -l          Only allow localhost connections
   -p PORT     Port to listen for connections on (default: $PORT)"
 }
@@ -26,15 +25,11 @@ nc_flavor() {
 flavor="$(nc_flavor)"
 
 # Parse user arguments
-while getopts ":lhkp:" opt
+while getopts ":lhp:" opt
 do
   case "$opt" in
     h)
       usage
-      exit 0
-      ;;
-    k)
-      ss -lp 2> /dev/null | grep -w ":$PORT" | awk '{print $7}' | sed 's|.*pid=\(.*\),.*|\1|' | xargs kill
       exit 0
       ;;
     l)
