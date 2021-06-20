@@ -8,6 +8,12 @@ Netcat opens a port on the server device connected to an open shell session. Cli
 - Android support
 - Few dependencies (mainly just toybox)
 - Local connection filter (only allow localhost connections)
+- Basic authentication
+
+# Usage examples
+- No authentication: `sh issh.sh`
+- Basic authentication: `KEY=[PASSWORD] sh issh.sh`
+- Special port: `sh issh.sh -p [PORT]`
 
 # Android
 A main attraction is support for Android using Toybox's netcat potocol. Here's an example of how we can use a computer to open a privileged adb shell session using issh:
