@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
 
-LOCAL=false
-PORT=65432
+LOCAL=false     # Shall we only allow localhost connections?
+PORT=65432      # Port to open with netcat
 
-# Detect if we have netcat at all
-if ! command -v nc &> /dev/null
-then
-  echo "Netcat backend not found"
-  exit 1
-fi
-
+# Display usage for this script
 usage() {
   echo "Usage: $0 [-h] [-k] [-l] [-p PORT]
   -h          Show this screen
@@ -18,6 +12,20 @@ usage() {
   -p PORT     Port to listen for connections on (default: $PORT)"
 }
 
+# Return which flavor of netcat we have (Busybox or Toybox)
+nc_flavor() {
+  for flavor in busybox toybox
+  do
+    if command -v "$flavor" &> /dev/null
+    then
+      echo "$flavor"
+      return
+    fi
+  done
+}
+flavor="$(nc_flavor)"
+
+# Parse user arguments
 while getopts ":lhkp:" opt
 do
   case "$opt" in
@@ -26,7 +34,7 @@ do
       exit 0
       ;;
     k)
-      pkill netcat
+      pkill "$flavor"
       exit 0
       ;;
     l)
@@ -42,10 +50,33 @@ do
   esac
 done
 
-ARGS=()
-[[ "$LOCAL" == true ]] && ARGS+=("-s localhost")
+# Depending on the netcat flavor, we need different arguments
+NCARGS=()
+case "$flavor" in
+  busybox)
+    NCARGS+=(
+      "-l"
+      "-k"
+      "-p $PORT"
+    )
+    [[ "$LOCAL" == true ]] && NCARGS+=("-s localhost")
+    NCARGS+=("-e")
+    ;;
+  toybox)
+    NCARGS+=(
+      "-L"
+      "-p $PORT"
+    )
+    [[ "$LOCAL" == true ]] && NCARGS+=("-s localhost")
+    ;;
+  *)
+    echo "Neither Busybox nor Toybox detected"
+    exit 1
+    ;;
+esac
 
+# Execute netcat and fork it
 # shellcheck disable=SC2068
-setsid netcat -p "$PORT" -L ${ARGS[@]} sh &
+"$flavor" nc ${NCARGS[@]} sh -c "${SHELL:-sh} 2>&1"
 
 echo -e "Done! Use: \e[1mnc localhost $PORT\e[0m"
