@@ -1,18 +1,29 @@
 #!/usr/bin/env bash
 
+# Server options
 LOCAL=false
 COMMAND="sh -li 2>&1"
 PORT=65432
 
+# Client options
+INTERACTIVE=false
+ADDRESS="localhost"
+
 # Display usage for this script
 usage() {
-  echo "Creates an insecure shell via netcat
+  echo "Insecure shelling via netcat
 
-Usage: $0 [-h] [-l] [-p PORT]
+Usage: $0 [-h] [-l] [-c COMMAND] [-p PORT] [-t] [-C ADDRESS]
   -h            Show this screen
+
+Server options:
   -l            Only allow localhost connections
-  -c COMMAND    Command to use when client connects (default: $COMMAND)
-  -p PORT       Port to listen for connections on (default: $PORT)"
+  -c COMMAND    Command to run when client connects (default: $COMMAND)
+  -p PORT       Port to listen on (default: $PORT)
+
+Client options:
+  -t            Use raw TTY for interactivity
+  -C ADDRESS    Connect to an open session (default: $ADDRESS)"
 }
 
 if ! command -v toybox &> /dev/null
@@ -22,7 +33,7 @@ then
 fi
 
 # Parse user arguments
-while getopts ":hlc:p:" opt; do
+while getopts ":hlc:p:tC:" opt; do
   case "$opt" in
   h)
     usage
@@ -36,6 +47,16 @@ while getopts ":hlc:p:" opt; do
     ;;
   p)
     PORT="$OPTARG"
+    ;;
+  C)
+    ADDRESS="$OPTARG"
+    [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
+    nc "$ADDRESS" "$PORT"
+    [[ "$INTERACTIVE" == true ]] && stty sane
+    exit 0
+    ;;
+  t)
+    INTERACTIVE=true
     ;;
   *)
     usage
@@ -61,8 +82,6 @@ fi
 # Handle arguments that should be given to netcat
 NCARGS=()
 [[ "$LOCAL" == true ]] && NCARGS+=("-s localhost")
-
-echo -e "Connect with: \e[1mnc localhost $PORT\e[0m"
 
 # shellcheck disable=SC2068
 toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "$COMMAND"
