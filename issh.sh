@@ -80,14 +80,11 @@ then
   exit 1
 fi
 
-# Depending on the box flavor, we need different arguments
-NCARGS=(
-  "-L"
-  "-p $PORT"
-)
+# Handle arguments that should be given to netcat
+NCARGS=()
 [[ "$LOCAL" == true ]] && NCARGS+=("-s localhost")
 
 echo -e "Connect with: \e[1mnc localhost $PORT\e[0m"
 
 # shellcheck disable=SC2068
-toybox nc ${NCARGS[@]} sh -c "login 2>&1"
+toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "login 2>&1"
