@@ -18,7 +18,7 @@ Usage: $0 [-h] [-l] [-c COMMAND] [-p PORT] [-t] [-C ADDRESS]
 
 Server options:
   -l            Only allow localhost connections
-  -c COMMAND    Command to run when client connects
+  -c COMMAND    Command to run when client connects (default: $COMMAND)
   -p PORT       Port to listen on (default: $PORT)
 
 Client options:
