@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-LOCAL=false # Shall we only allow localhost connections?
-PORT=65432  # Port to open with netcat
+LOCAL=false
+COMMAND="sh -li"
+PORT=65432
 
 # Display usage for this script
 usage() {
   echo "Usage: $0 [-h] [-l] [-p PORT]
-  -h          Show this screen
-  -l          Only allow localhost connections
-  -p PORT     Port to listen for connections on (default: $PORT)"
+  -h            Show this screen
+  -l            Only allow localhost connections
+  -c COMMAND    Command to use when client connects (default: $COMMAND)
+  -p PORT       Port to listen for connections on (default: $PORT)"
 }
 
 if ! command -v toybox &> /dev/null
@@ -18,7 +20,7 @@ then
 fi
 
 # Parse user arguments
-while getopts ":hlp:" opt; do
+while getopts ":hlc:p:" opt; do
   case "$opt" in
   h)
     usage
@@ -26,6 +28,9 @@ while getopts ":hlp:" opt; do
     ;;
   l)
     LOCAL=true
+    ;;
+  c)
+    COMMAND="$OPTARG"
     ;;
   p)
     PORT="$OPTARG"
@@ -58,4 +63,4 @@ NCARGS=()
 echo -e "Connect with: \e[1mnc localhost $PORT\e[0m"
 
 # shellcheck disable=SC2068
-toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "sh -i 2>&1"
+toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "$COMMAND 2>&1"
