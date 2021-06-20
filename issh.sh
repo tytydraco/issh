@@ -34,7 +34,7 @@ do
       exit 0
       ;;
     k)
-      pkill "$flavor"
+      ss -lp 2> /dev/null | grep -w ":$PORT" | awk '{print $7}' | sed 's|.*pid=\(.*\),.*|\1|' | xargs kill
       exit 0
       ;;
     l)
