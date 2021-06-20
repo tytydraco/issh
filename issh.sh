@@ -8,37 +8,8 @@ usage() {
   echo "Usage: $0 [-h] [-l] [-p PORT]
   -h          Show this screen
   -l          Only allow localhost connections
-  -p PORT     Port to listen for connections on (default: $PORT)
-
-  Set environmental variable 'KEY' to require a login key.
-  Example: KEY=mypassword123 $0"
+  -p PORT     Port to listen for connections on (default: $PORT)"
 }
-
-# Gets called when user attempts to connect to us
-login() {
-  local key
-
-  # If server didn't specify a key, launch shell
-  if [[ -z "$KEY" ]]
-  then
-    sh -i
-    exit
-  fi
-
-  # Verify authentication attempts
-  echo -n "Key: "
-  read -r key
-  if [[ "$key" == "$KEY" ]]
-  then
-    clear
-    sh -i
-    exit
-  else
-    echo "Incorrect key."
-    exit 1
-  fi
-}
-export -f login
 
 if ! command -v toybox &> /dev/null
 then
@@ -87,4 +58,4 @@ NCARGS=()
 echo -e "Connect with: \e[1mnc localhost $PORT\e[0m"
 
 # shellcheck disable=SC2068
-toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "login 2>&1"
+toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "sh -i 2>&1"

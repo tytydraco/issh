@@ -8,11 +8,9 @@ Netcat opens a port on the server device connected to an open shell session. Cli
 - Android support
 - Few dependencies (mainly just toybox)
 - Local connection filter (only allow localhost connections)
-- Basic authentication
 
 # Usage examples
 - No authentication: `sh issh.sh`
-- Basic authentication: `KEY=[PASSWORD] sh issh.sh`
 - Special port: `sh issh.sh -p [PORT]`
 
 # Android
