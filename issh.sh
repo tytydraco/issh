@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
+# Constants
+MODE_SERVER="server"
+MODE_CLIENT="client"
+
 # Global options
+MODE="$MODE_SERVER"
 PORT=65432
 
 # Server options
@@ -28,62 +33,89 @@ Client options:
   -C ADDRESS    Connect to an open session (default: $ADDRESS)"
 }
 
-if ! command -v toybox &> /dev/null
-then
-  echo "Missing toybox binary"
-  exit 1
-fi
-
-# Parse user arguments
-while getopts ":hp:lc:tC:" opt; do
-  case "$opt" in
-  h)
-    usage
-    exit 0
-    ;;
-  p)
-    PORT="$OPTARG"
-    ;;
-  l)
-    LOCAL=true
-    ;;
-  c)
-    COMMAND="$OPTARG"
-    ;;
-  C)
-    ADDRESS="$OPTARG"
-    [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
-    toybox nc "$ADDRESS" "$PORT"
-    [[ "$INTERACTIVE" == true ]] && stty sane
-    exit 0
-    ;;
-  t)
-    INTERACTIVE=true
-    ;;
-  *)
-    usage
+# Make sure we have everything we need to run
+assert_dependencies() {
+  if ! command -v toybox &>/dev/null; then
+    echo "Missing toybox binary"
     exit 1
-    ;;
-  esac
-done
+  fi
+}
 
 # Check if port is out of range
-if [[ "$PORT" -gt 65535 || "$PORT" -lt 1 ]]
+assert_port_within_range() {
+  if [[ "$PORT" -gt 65535 || "$PORT" -lt 1 ]]; then
+    echo "Port is out of range (1-65535): $PORT"
+    exit 1
+  fi
+}
+
+# Check if port is in use currently
+assert_port_available() {
+  if toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$PORT" &>/dev/null; then
+    echo "Port is in use: $PORT"
+    exit 1
+  fi
+}
+
+# Parse arguments passed to us and set relevant variables
+parse_options() {
+  while getopts ":hp:lc:tC:" opt; do
+    case "$opt" in
+    h)
+      usage
+      exit 0
+      ;;
+    p)
+      PORT="$OPTARG"
+      ;;
+    l)
+      LOCAL=true
+      ;;
+    c)
+      COMMAND="$OPTARG"
+      ;;
+    C)
+      MODE="$MODE_CLIENT"
+      ADDRESS="$OPTARG"
+      ;;
+    t)
+      INTERACTIVE=true
+      ;;
+    *)
+      usage
+      exit 1
+      ;;
+    esac
+  done
+}
+
+# Host a server
+server() {
+  assert_port_available
+
+  # Handle arguments that should be given to netcat
+  NC_ARGS=()
+  [[ "$LOCAL" == true ]] && NC_ARGS+=("-s localhost")
+
+  # shellcheck disable=SC2068
+  toybox nc -L -p "$PORT" ${NC_ARGS[@]} sh -c "$COMMAND"
+}
+
+# Connect to a client
+client() {
+  [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
+  toybox nc "$ADDRESS" "$PORT" || echo "OOF"
+  [[ "$INTERACTIVE" == true ]] && stty sane
+}
+
+parse_options "$@"
+assert_dependencies
+assert_port_within_range
+
+if [[ "$MODE" == "$MODE_SERVER" ]]
 then
-  echo "Port is out of range (1-65535): $PORT"
-  exit 1
-fi
-
-# Check if we can even support this port
-if toybox netstat -lpn 2> /dev/null | toybox grep -w ".*:$PORT" &> /dev/null
+  server
+elif [[ "$MODE" == "$MODE_CLIENT" ]]
 then
-  echo "Port is in use: $PORT"
-  exit 1
+  client
 fi
-
-# Handle arguments that should be given to netcat
-NCARGS=()
-[[ "$LOCAL" == true ]] && NCARGS+=("-s localhost")
-
-# shellcheck disable=SC2068
-toybox nc -L -p "$PORT" ${NCARGS[@]} sh -c "$COMMAND"
