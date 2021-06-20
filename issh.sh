@@ -67,7 +67,7 @@ while getopts ":hlp:" opt; do
 done
 
 # Check if we can even support this port
-if toybox netstat -lpn 2> /dev/null | toybox grep 65432 &> /dev/null
+if toybox netstat -lpn 2> /dev/null | toybox grep -w ".*:$PORT" &> /dev/null
 then
   echo "Port is in use: $PORT"
   exit 1
