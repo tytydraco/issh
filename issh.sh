@@ -5,9 +5,8 @@ PORT=65432  # Port to open with netcat
 
 # Display usage for this script
 usage() {
-  echo "Usage: $0 [-h] [-k] [-l] [-p PORT]
+  echo "Usage: $0 [-h] [-l] [-p PORT]
   -h          Show this screen
-  -k          Kill session on port specified by -p
   -l          Only allow localhost connections
   -p PORT     Port to listen for connections on (default: $PORT)
 
@@ -27,8 +26,8 @@ login() {
   fi
 
   # Verify authentication attempts
-  echo "Authentication required. Enter key:"
-  read -r key
+  echo "Authentication required."
+  read -rp "Key: " key
   if [[ "$key" == "$KEY" ]]
   then
     clear
@@ -48,16 +47,10 @@ then
 fi
 
 # Parse user arguments
-while getopts ":hklp:" opt; do
+while getopts ":hlp:" opt; do
   case "$opt" in
   h)
     usage
-    exit 0
-    ;;
-  k)
-    netstat_details="$(toybox netstat -lpn 2> /dev/null | toybox grep ":$PORT")"
-    session_pid="$(echo "$netstat_details" | toybox sed 's|.* ||; s|/.*||; s|-||')"
-    [[ -n "$session_pid" ]] && toybox kill "$session_pid"
     exit 0
     ;;
   l)
@@ -87,8 +80,7 @@ NCARGS=(
 )
 [[ "$LOCAL" == true ]] && NCARGS+=("-s localhost")
 
-# Execute netcat and fork it
-# shellcheck disable=SC2068
-toybox setsid toybox nc ${NCARGS[@]} sh -c "login 2>&1" &
+echo -e "Connect with: \e[1mnc localhost $PORT\e[0m"
 
-echo -e "Done! Use: \e[1mnc localhost $PORT\e[0m"
+# shellcheck disable=SC2068
+toybox nc ${NCARGS[@]} sh -c "login 2>&1"
