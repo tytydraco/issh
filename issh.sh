@@ -26,8 +26,8 @@ login() {
   fi
 
   # Verify authentication attempts
-  echo "Authentication required."
-  read -rp "Key: " key
+  echo -n "Key: "
+  read -r key
   if [[ "$key" == "$KEY" ]]
   then
     clear
