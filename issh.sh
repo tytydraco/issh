@@ -77,6 +77,6 @@ esac
 
 # Execute netcat and fork it
 # shellcheck disable=SC2068
-"$flavor" nc ${NCARGS[@]} sh -c "${SHELL:-sh} 2>&1"
+setsid "$flavor" nc ${NCARGS[@]} sh -c "${SHELL:-sh} 2>&1" &
 
 echo -e "Done! Use: \e[1mnc localhost $PORT\e[0m"
