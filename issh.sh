@@ -66,6 +66,13 @@ while getopts ":hlp:" opt; do
   esac
 done
 
+# Check if port is out of range
+if [[ "$PORT" -gt 65535 || "$PORT" -lt 1 ]]
+then
+  echo "Port is out of range (1-65535): $PORT"
+  exit 1
+fi
+
 # Check if we can even support this port
 if toybox netstat -lpn 2> /dev/null | toybox grep -w ".*:$PORT" &> /dev/null
 then
