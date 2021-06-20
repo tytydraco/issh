@@ -23,9 +23,12 @@ Client side (i.e. device itself via terminal emulator):
 
 In this case, our client does not need to use a computer to gain adb shell-level access if we have previously opened an issh session.
 
-## But why not use self-connected ADB then (i.e. Termux, LADB, etc.)
+### But why not use self-connected ADB then (i.e. Termux, LADB, etc.)
 1) Avoiding ADB protocol entirely
 2) Avoiding cross-compiling ADB binary
 3) Avoiding external programs that rely on binary executables
 4) Compatibility with Android 6+ (intead of Android 10+)
 5) Wireless debugging is no longer necessary
+
+### Limitations
+1) Session must be restarted per device reboot
