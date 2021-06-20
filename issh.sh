@@ -50,6 +50,13 @@ do
   esac
 done
 
+# Check if we can even support this port
+if ss -l 2> /dev/null | grep -q ":$PORT"
+then
+  echo "Port is in use: $PORT"
+  exit 1
+fi
+
 # Depending on the netcat flavor, we need different arguments
 NCARGS=()
 case "$flavor" in
