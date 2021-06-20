@@ -11,10 +11,10 @@ then
 fi
 
 usage() {
-  echo "Usage: $0 [-h] [-l] [-k] [-p PORT]
+  echo "Usage: $0 [-h] [-k] [-l] [-p PORT]
   -h          Show this screen
-  -l          Only allow localhost connections
   -k          Kill any open netcat sessions
+  -l          Only allow localhost connections
   -p PORT     Port to listen for connections on (default: $PORT)"
 }
 
@@ -25,12 +25,12 @@ do
       usage
       exit 0
       ;;
-    l)
-      LOCAL=true
-      ;;
     k)
       pkill netcat
       exit 0
+      ;;
+    l)
+      LOCAL=true
       ;;
     p)
       PORT="$OPTARG"
