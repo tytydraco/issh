@@ -104,7 +104,7 @@ server() {
 # Connect to a client
 client() {
   [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
-  toybox nc "$ADDRESS" "$PORT" || echo "OOF"
+  toybox nc "$ADDRESS" "$PORT"
   [[ "$INTERACTIVE" == true ]] && stty sane
 }
 
