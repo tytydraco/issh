@@ -43,19 +43,29 @@ assert_dependencies() {
 }
 
 # Check if port is out of range
+is_port_within_range() {
+  [[ "$1" -gt 1 && "$1" -lt 65535 ]]
+}
+
+# Bail if port is out of range
 assert_port_within_range() {
-  if [[ "$PORT" -gt 65535 || "$PORT" -lt 1 ]]
+  if ! is_port_within_range "$1"
   then
-    echo "Port is out of range (1-65535): $PORT"
+    echo "Port is out of range (1-65535): $1"
     exit 1
   fi
 }
 
 # Check if port is in use currently
+is_port_available() {
+  ! toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$1" &>/dev/null
+}
+
+# Bail if port is taken
 assert_port_available() {
-  if toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$PORT" &>/dev/null
+  if ! is_port_available "$1"
   then
-    echo "Port is in use: $PORT"
+    echo "Port is in use: $1"
     exit 1
   fi
 }
@@ -95,7 +105,8 @@ parse_options() {
 
 # Host a server
 server() {
-  assert_port_available
+  assert_port_within_range "$PORT"
+  assert_port_available "$PORT"
 
   # Handle arguments that should be given to netcat
   NC_ARGS=()
@@ -107,6 +118,8 @@ server() {
 
 # Connect to a client
 client() {
+  assert_port_within_range "$PORT"
+
   [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
   toybox nc "$ADDRESS" "$PORT"
   [[ "$INTERACTIVE" == true ]] && stty sane
@@ -114,7 +127,6 @@ client() {
 
 parse_options "$@"
 assert_dependencies
-assert_port_within_range
 
 if [[ "$MODE" == "$MODE_SERVER" ]]
 then
