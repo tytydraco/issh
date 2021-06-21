@@ -23,7 +23,11 @@ You can use issh for a variety of tasks. Here's a few examples to get you starte
 - Server: `setsid ./issh.sh &` (forks our server to the background)
 - Client: `./issh.sh -C localhost -t` (connects as an interactive tty)
 
-### Remote interactive shell (auth)
+### Remote interactive shell (su auth)
+- Server: `setsid ./issh.sh -c "su -c 'sh -li' - username 2>&1" &`
+- Client: `./issh.sh -C localhost -t` (greeted with su asking for password; if success, dropped into `sh -li`)
+
+### Remote interactive shell (custom auth)
 - Server: `setsid ./issh.sh -c "./auth.sh" &`
 - Server: Create an authentication script that should be presented to the client on connect. Here's an example. Ideally, your password would not be stored in plaintext in the script. Other authentication ideas could be to use SSL or GPG keys. **Authentication is not provided by issh.**
 ```sh
