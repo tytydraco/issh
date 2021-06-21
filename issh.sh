@@ -10,7 +10,7 @@ PORT=65432
 
 # Server options
 LOCAL=false
-COMMAND="sh -li 2>&1"
+COMMAND="sh 2>&1"
 
 # Client options
 INTERACTIVE=false

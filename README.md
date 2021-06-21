@@ -17,14 +17,22 @@ For a typical Linux system, putting this script in the PATH variable should be e
 # Benchmarks against OpenSSH
 Since we do not rely on OpenSSL, we are able to get a reply from a server in significantly less time using issh. In this benchmark, we compare `sshpass -p <PASSWORD> ssh host@localhost <COMMAND>` against `./issh.sh -c "sh"` and `./issh.sh -C localhost`.
 
-- OpenSSH: ~150ms avg
-- issh: ~15ms avg
+- OpenSSH: ~150ms avg latency
+- issh: ~15ms avg latency
 
 # Examples
 You can use issh for a variety of tasks. Here's a few examples to get you started.
 
-### Remote interactive shell (no auth)
+### Remote non-interactive shell
 - Server: `setsid ./issh.sh &` (forks our server to the background)
+- Client: `echo "whoami" | ./issh.sh -C localhost`
+
+### Remote interactive shell (no auth)
+Note that for interactive shells, we should do a few things:
+1) Use a login shell, so we source our profile dotfile
+2) Use an interactive shell to handle TTY commands
+3) Redirect STDERR to STDOUT, so our client can see it
+- Server: `setsid ./issh.sh -c "sh -li 2>&1" &`
 - Client: `./issh.sh -C localhost -t` (connects as an interactive tty)
 
 ### Remote interactive shell (su auth)
@@ -54,8 +62,8 @@ Since issh is built on top of toybox instead of typical GNU tools, we can suppor
 A useful concept is allowing a regular user to gain ADB-level access without needing to be constantly connected to a computer, nor needing wireless debugging or an ADB binary of any kind.
 
 1) Using a computer, start an `adb shell`
-2) Pull the `issh.sh` script somewhere local (i.e. /sdcard/Download/)
-3) `setsid sh issh.sh &`
+2) Pull the `issh.sh` script somewhere local (i.e., /sdcard/Download/)
+3) `setsid sh issh.sh -c "sh -li 2>&1" &`
 
 Now, on a client (which can be the device itself via a standard terminal emulator), we can connect to this session locally.
 1) `sh issh.sh -C localhost -t`
