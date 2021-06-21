@@ -35,7 +35,8 @@ Client options:
 
 # Make sure we have everything we need to run
 assert_dependencies() {
-  if ! command -v toybox &>/dev/null; then
+  if ! command -v toybox &>/dev/null
+  then
     echo "Missing toybox binary"
     exit 1
   fi
@@ -43,7 +44,8 @@ assert_dependencies() {
 
 # Check if port is out of range
 assert_port_within_range() {
-  if [[ "$PORT" -gt 65535 || "$PORT" -lt 1 ]]; then
+  if [[ "$PORT" -gt 65535 || "$PORT" -lt 1 ]]
+  then
     echo "Port is out of range (1-65535): $PORT"
     exit 1
   fi
@@ -51,7 +53,8 @@ assert_port_within_range() {
 
 # Check if port is in use currently
 assert_port_available() {
-  if toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$PORT" &>/dev/null; then
+  if toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$PORT" &>/dev/null
+  then
     echo "Port is in use: $PORT"
     exit 1
   fi
@@ -59,7 +62,8 @@ assert_port_available() {
 
 # Parse arguments passed to us and set relevant variables
 parse_options() {
-  while getopts ":hp:lc:tC:" opt; do
+  while getopts ":hp:lc:tC:" opt
+  do
     case "$opt" in
     h)
       usage
