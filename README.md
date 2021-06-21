@@ -2,7 +2,7 @@
 Insecure shelling via netcat
 
 # Install
-For a typical Linux system, putting this script in a local path should do the trick.
+For a typical Linux system, putting this script in the PATH variable should be enough.
 - `curl -L https://git.io/JnKnM > /usr/local/bin/issh`
 - `chmod +x /usr/local/bin/issh`
 
