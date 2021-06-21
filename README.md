@@ -24,7 +24,7 @@ Since we do not rely on OpenSSL, we are able to get a reply from a server in sig
 You can use issh for a variety of tasks. Here's a few examples to get you started.
 
 ### Remote non-interactive shell
-- Server: `setsid ./issh.sh &` (forks our server to the background)
+- Server: `./issh.sh -d` (`-d` forks our server to the background)
 - Client: `echo "whoami" | ./issh.sh -C localhost`
 
 ### Remote interactive shell (no auth)
@@ -32,15 +32,15 @@ Note that for interactive shells, we should do a few things:
 1) Use a login shell, so we source our profile dotfile
 2) Use an interactive shell to handle TTY commands
 3) Redirect STDERR to STDOUT, so our client can see it
-- Server: `setsid ./issh.sh -c "sh -li 2>&1" &`
+- Server: `./issh.sh -d -c "sh -li 2>&1"`
 - Client: `./issh.sh -C localhost -t` (connects as an interactive tty)
 
 ### Remote interactive shell (su auth)
-- Server: `setsid ./issh.sh -c "su -c 'sh -li' - username 2>&1" &`
+- Server: `./issh.sh -d -c "su -c 'sh -li' - username 2>&1"`
 - Client: `./issh.sh -C localhost -t` (greeted with su asking for password; if success, dropped into `sh -li`)
 
 ### Remote interactive shell (custom auth)
-- Server: `setsid ./issh.sh -c "./auth.sh" &`
+- Server: `./issh.sh -d -c "./auth.sh"`
 - Server: Create an authentication script that should be presented to the client on connect. Here's an example. Ideally, your password would not be stored in plaintext in the script. Other authentication ideas could be to use SSL or GPG keys. **Authentication is not provided by issh.**
 ```sh
 #!/usr/bin/env bash
@@ -52,7 +52,7 @@ read -r key
 - Client: `Enter secret key: password123`
 
 ### Public system API
-- Server: `setsid ./issh.sh -c "cat /proc/loadavg" &`
+- Server: `./issh.sh -d -c "cat /proc/loadavg"`
 - Client: `SERVER_LOADAVG="$(./issh.sh -C localhost)"`
 
 # Android
@@ -63,7 +63,7 @@ A useful concept is allowing a regular user to gain ADB-level access without nee
 
 1) Using a computer, start an `adb shell`
 2) Pull the `issh.sh` script somewhere local (i.e., /sdcard/Download/)
-3) `setsid sh issh.sh -c "sh -li 2>&1" &`
+3) `sh issh.sh -d -c "sh -li 2>&1"`
 
 Now, on a client (which can be the device itself via a standard terminal emulator), we can connect to this session locally.
 1) `sh issh.sh -C localhost -t`
