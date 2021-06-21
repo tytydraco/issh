@@ -1,6 +1,11 @@
 # issh
 Insecure shelling via netcat
 
+# Install
+For a typical Linux system, putting this script in a local path should do the trick.
+- `curl -L https://git.io/JnKnM > /usr/local/bin/issh`
+- `chmod +x /usr/local/bin/issh`
+
 # Features
 - Support embedded systems that lack OpenSSL/OpenSSH
 - Upwards of 10x faster (see benchmarks)
