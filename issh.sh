@@ -10,6 +10,7 @@ PORT=65432
 
 # Server options
 LOCAL=false
+DAEMON=false
 COMMAND="sh 2>&1"
 
 # Client options
@@ -20,12 +21,13 @@ ADDRESS="localhost"
 usage() {
   echo "Insecure shelling via netcat
 
-Usage: $0 [-h] [-p PORT] [-l] [-c COMMAND] [-t] [-C ADDRESS]
+Usage: $0 [-h] [-p PORT] [-l] [-d] [-c COMMAND] [-t] [-C ADDRESS]
   -h            Show this screen
   -p PORT       Port to listen/connect on (default: $PORT)
 
 Server options:
   -l            Only allow localhost connections
+  -d            Fork to background; run as daemon
   -c COMMAND    Command to run when client connects (default: $COMMAND)
 
 Client options:
@@ -72,7 +74,7 @@ assert_port_available() {
 
 # Parse arguments passed to us and set relevant variables
 parse_options() {
-  while getopts ":hp:lc:tC:" opt
+  while getopts ":hp:ldc:tC:" opt
   do
     case "$opt" in
     h)
@@ -84,6 +86,9 @@ parse_options() {
       ;;
     l)
       LOCAL=true
+      ;;
+    d)
+      DAEMON=true
       ;;
     c)
       COMMAND="$OPTARG"
@@ -104,16 +109,24 @@ parse_options() {
 }
 
 # Host a server
+# shellcheck disable=SC2068
 server() {
   assert_port_within_range "$PORT"
   assert_port_available "$PORT"
 
   # Handle arguments that should be given to netcat
-  NC_ARGS=()
-  [[ "$LOCAL" == true ]] && NC_ARGS+=("-s localhost")
+  nc_args=(
+    "-L"
+    "-p $PORT"
+  )
+  [[ "$LOCAL" == true ]] && nc_args+=("-s localhost")
 
-  # shellcheck disable=SC2068
-  toybox nc -L -p "$PORT" ${NC_ARGS[@]} sh -c "$COMMAND"
+  if [[ "$DAEMON" == true ]]
+  then
+    toybox setsid toybox nc ${nc_args[@]} sh -c "$COMMAND" &
+  else
+    toybox nc ${nc_args[@]} sh -c "$COMMAND"
+  fi
 }
 
 # Connect to a client
