@@ -109,7 +109,6 @@ parse_options() {
 }
 
 # Host a server
-# shellcheck disable=SC2068
 server() {
   assert_port_within_range "$PORT"
   assert_port_available "$PORT"
@@ -117,15 +116,15 @@ server() {
   # Handle arguments that should be given to netcat
   nc_args=(
     "-L"
-    "-p $PORT"
+    "-p" "$PORT"
   )
   [[ "$LOCAL" == true ]] && nc_args+=("-s localhost")
 
   if [[ "$DAEMON" == true ]]
   then
-    toybox setsid toybox nc ${nc_args[@]} sh -c "$COMMAND" &
+    toybox setsid toybox nc "${nc_args[@]}" sh -c "$COMMAND" &
   else
-    toybox nc ${nc_args[@]} sh -c "$COMMAND"
+    toybox nc "${nc_args[@]}" sh -c "$COMMAND"
   fi
 }
 
