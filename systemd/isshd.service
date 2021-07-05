@@ -1,5 +1,6 @@
 [Unit]
 Description=Persistent issh root login daemon
+After=network.target
 
 [Service]
 ExecStart=issh -c "su -c 'bash -li' - container 2>&1"
