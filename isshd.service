@@ -1,9 +1,0 @@
-[Unit]
-Description=Persistent issh root login daemon
-
-[Service]
-ExecStart=issh -c "su -c 'bash -li' - container 2>&1"
-Restat=true
-
-[Install]
-WantedBy=multi-user.target
