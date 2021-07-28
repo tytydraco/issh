@@ -15,7 +15,7 @@ For a typical Linux system, putting this script in the PATH variable should be e
 - Supports filtering of external connections
 
 # Benchmarks against OpenSSH
-Since we do not rely on OpenSSL, we are able to get a reply from a server in significantly less time using issh. In this benchmark, we compare `sshpass -p <PASSWORD> ssh host@localhost <COMMAND>` against `./issh.sh -c "sh"` and `./issh.sh -C localhost`.
+Since we do not rely on OpenSSL, we are able to get a reply from a server in significantly less time using issh. In this benchmark, we compare `sshpass -p <PASSWORD> ssh host@localhost <COMMAND>` against `./issh -c "sh"` and `./issh -C localhost`.
 
 - OpenSSH: ~150ms avg latency
 - issh: ~15ms avg latency
@@ -24,23 +24,23 @@ Since we do not rely on OpenSSL, we are able to get a reply from a server in sig
 You can use issh for a variety of tasks. Here's a few examples to get you started.
 
 ### Remote non-interactive shell
-- Server: `./issh.sh -d` (`-d` forks our server to the background)
-- Client: `echo "whoami" | ./issh.sh -C localhost`
+- Server: `./issh -d` (`-d` forks our server to the background)
+- Client: `echo "whoami" | ./issh -C localhost`
 
 ### Remote interactive shell (no auth)
 Note that for interactive shells, we should do a few things:
 1) Use a login shell, so we source our profile dotfile
 2) Use an interactive shell to handle TTY commands
 3) Redirect STDERR to STDOUT, so our client can see it
-- Server: `./issh.sh -d -c "sh -li 2>&1"`
-- Client: `./issh.sh -C localhost -t` (connects as an interactive tty)
+- Server: `./issh -d -c "sh -li 2>&1"`
+- Client: `./issh -C localhost -t` (connects as an interactive tty)
 
 ### Remote interactive shell (su auth)
-- Server: `./issh.sh -d -c "su -c 'sh -li' - username 2>&1"`
-- Client: `./issh.sh -C localhost -t` (greeted with su asking for password; if success, dropped into `sh -li`)
+- Server: `./issh -d -c "su -c 'sh -li' - username 2>&1"`
+- Client: `./issh -C localhost -t` (greeted with su asking for password; if success, dropped into `sh -li`)
 
 ### Remote interactive shell (custom auth)
-- Server: `./issh.sh -d -c "./auth.sh"`
+- Server: `./issh -d -c "./auth.sh"`
 - Server: Create an authentication script that should be presented to the client on connect. Here's an example. Ideally, your password would not be stored in plaintext in the script. Other authentication ideas could be to use SSL or GPG keys. **Authentication is not provided by issh.**
 ```sh
 #!/usr/bin/env bash
@@ -48,16 +48,16 @@ echo -n "Enter secret key: "
 read -r key
 [[ "$key" == "password123" ]] && bash -li 2>&1
 ```
-- Client: `./issh.sh -C localhost -t` (connects as an interactive tty)
+- Client: `./issh -C localhost -t` (connects as an interactive tty)
 - Client: `Enter secret key: password123`
 
 ### Public system API
-- Server: `./issh.sh -d -c "cat /proc/loadavg"`
-- Client: `SERVER_LOADAVG="$(./issh.sh -C localhost)"`
+- Server: `./issh -d -c "cat /proc/loadavg"`
+- Client: `SERVER_LOADAVG="$(./issh -C localhost)"`
 
 # Systemd
 You can start issh on bootup using systemd. The default configuration creates an interactive bash session.
-1) `cp issh.sh /usr/bin/issh`
+1) `cp issh /usr/bin/issh`
 2) `chmod +x /usr/bin/issh`
 3) `cp systemd/isshd.service /etc/systemd/system/`
 4) `chmod +x /etc/systemd/system/isshd.service`
@@ -70,11 +70,11 @@ Since issh is built on top of toybox instead of typical GNU tools, we can suppor
 A useful concept is allowing a regular user to gain ADB-level access without needing to be constantly connected to a computer, nor needing wireless debugging or an ADB binary of any kind.
 
 1) Using a computer, start an `adb shell`
-2) Pull the `issh.sh` script somewhere local (i.e., /sdcard/Download/)
-3) `sh issh.sh -d -c "sh -li 2>&1"`
+2) Pull the `issh` script somewhere local (i.e., /sdcard/Download/)
+3) `sh issh -d -c "sh -li 2>&1"`
 
 Now, on a client (which can be the device itself via a standard terminal emulator), we can connect to this session locally.
-1) `sh issh.sh -C localhost -t`
+1) `sh issh -C localhost -t`
 2) `pm grant com.example.app android.permission.PRIVILEDGED_PERMISSION_EXAMPLE`
 
 In this case, our client does not need to use a computer to gain ADB-level access since we have an open issh session.
