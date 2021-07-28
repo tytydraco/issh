@@ -57,11 +57,9 @@ read -r key
 
 # Systemd
 You can start issh on bootup using systemd. The default configuration creates an interactive bash session.
-1) `cp issh /usr/bin/issh`
-2) `chmod +x /usr/bin/issh`
-3) `cp systemd/isshd.service /etc/systemd/system/`
-4) `chmod +x /etc/systemd/system/isshd.service`
-5) `systemctl enable --now isshd`
+1) `cp systemd/isshd.service /etc/systemd/system/`
+2) `chmod +x /etc/systemd/system/isshd.service`
+3) `systemctl enable --now isshd`
 
 # Android
 Since issh is built on top of toybox instead of typical GNU tools, we can support a wider variety of devices, including Android.
