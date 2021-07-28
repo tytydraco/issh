@@ -2,7 +2,7 @@
 Description=Persistent issh root login daemon
 
 [Service]
-ExecStart=issh -c "su -c 'bash -li' - container 2>&1"
+ExecStart=issh -c "bash -li 2>&1"
 Restat=true
 
 [Install]
