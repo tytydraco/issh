@@ -20,21 +20,6 @@ Since we do not rely on OpenSSL, we are able to get a reply from a server in sig
 - OpenSSH: ~150ms avg latency
 - issh: ~15ms avg latency
 
-# Systemd
-You can start issh on bootup using systemd. This, on its own, is insecure. Let's fortify it and set things up.
-1) `cp issh.sh /usr/bin/issh`
-2) `chmod +x /usr/bin/issh`
-3) `cp systemd/isshd.service /etc/systemd/system/`
-4) `chmod +x /etc/systemd/system/isshd.service`
-5) `systemctl enable --now isshd`
-
-The systemd service file containerizes the issh session to a user appropriately called "container". Let's create it.
-1) `useradd -m container`
-
-Logging in looks something like this.
-1) `./issh -C localhost -t` # User is placed in container user
-2) `su -c "bash -li"` # User logs in as a root user using POSIX standard tools
-
 # Examples
 You can use issh for a variety of tasks. Here's a few examples to get you started.
 
@@ -69,6 +54,14 @@ read -r key
 ### Public system API
 - Server: `./issh.sh -d -c "cat /proc/loadavg"`
 - Client: `SERVER_LOADAVG="$(./issh.sh -C localhost)"`
+
+# Systemd
+You can start issh on bootup using systemd:
+1) `cp issh.sh /usr/bin/issh`
+2) `chmod +x /usr/bin/issh`
+3) `cp systemd/isshd.service /etc/systemd/system/`
+4) `chmod +x /etc/systemd/system/isshd.service`
+5) `systemctl enable --now isshd`
 
 # Android
 Since issh is built on top of toybox instead of typical GNU tools, we can support a wider variety of devices, including Android.
