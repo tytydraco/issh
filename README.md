@@ -79,15 +79,13 @@ Now, on a client (which can be the device itself via a standard terminal emulato
 
 In this case, our client does not need to use a computer to gain ADB-level access since we have an open issh session.
 
-### Termux
-You can launch an issh session in Termux as well. However, Termux lacks toybox, so we must add it to our PATH variable from the Android system.
-
-1) `export PATH="$PATH:/system/bin"`
-2) `./issh.sh`
-
 ### Benefits
 1) Avoiding ADB protocol entirely
 2) Avoiding cross-compiling ADB binary
 3) Avoiding external programs that rely on binary executables
 4) Compatibility with Android 6+ (instead of Android 10+)
 5) Wireless debugging is no longer necessary
+
+### Termux
+You can launch an issh session in Termux as well. However, Termux lacks toybox, so we must add it to our PATH variable from the Android system. Use the built-in Termux issh wrapper to automate the process:
+1) `./issh.termux.sh`
