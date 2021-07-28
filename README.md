@@ -56,7 +56,7 @@ read -r key
 - Client: `SERVER_LOADAVG="$(./issh.sh -C localhost)"`
 
 # Systemd
-You can start issh on bootup using systemd:
+You can start issh on bootup using systemd. The default configuration creates an interactive bash session.
 1) `cp issh.sh /usr/bin/issh`
 2) `chmod +x /usr/bin/issh`
 3) `cp systemd/isshd.service /etc/systemd/system/`
