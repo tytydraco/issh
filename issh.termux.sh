@@ -7,4 +7,4 @@ toybox() {
 export -f toybox
 
 # Execute script with Android raw shell script
-exec ./issh.sh "$@"
+exec ./issh "$@"
