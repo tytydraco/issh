@@ -4,7 +4,6 @@ After=network.target
 
 [Service]
 ExecStart=issh -c "bash -li 2>&1"
-Restart=true
 
 [Install]
 WantedBy=multi-user.target
