@@ -118,7 +118,7 @@ server() {
     "-L"
     "-p" "$PORT"
   )
-  [[ "$LOCAL" == true ]] && nc_args+=("-s localhost")
+  [[ "$LOCAL" == true ]] && nc_args+=("-s" "localhost")
 
   if [[ "$DAEMON" == true ]]
   then
