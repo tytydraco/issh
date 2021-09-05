@@ -21,7 +21,7 @@ ADDRESS="localhost"
 usage() {
   echo "Insecure shelling via netcat
 
-Usage: $0 [-h] [-p PORT] [-l] [-d] [-c COMMAND] [-t] [-C ADDRESS]
+Usage: $0 [-h] [-p PORT] [-l] [-d] [-c COMMAND] [-t] [-C ADDRESS] [-L]
   -h            Show this screen
   -p PORT       Port to listen/connect on (default: $PORT)
 
@@ -32,7 +32,8 @@ Server options:
 
 Client options:
   -t            Use raw TTY for interactivity
-  -C ADDRESS    Connect to an open session (default: $ADDRESS)"
+  -C ADDRESS    Connect to an open session (default: $ADDRESS)
+  -L		Connect to an open localhost session"
 }
 
 # Make sure we have everything we need to run
@@ -74,7 +75,7 @@ assert_port_available() {
 
 # Parse arguments passed to us and set relevant variables
 parse_options() {
-  while getopts ":hp:ldc:tC:" opt
+  while getopts ":hp:ldc:tC:L" opt
   do
     case "$opt" in
     h)
@@ -93,12 +94,16 @@ parse_options() {
     c)
       COMMAND="$OPTARG"
       ;;
+    t)
+      INTERACTIVE=true
+      ;;
     C)
       MODE="$MODE_CLIENT"
       ADDRESS="$OPTARG"
       ;;
-    t)
-      INTERACTIVE=true
+    L)
+      MODE="$MODE_CLIENT"
+      ADDRESS="localhost"
       ;;
     *)
       usage
