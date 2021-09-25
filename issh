@@ -40,7 +40,7 @@ Client options:
 assert_dependencies() {
   if ! command -v toybox &>/dev/null
   then
-    echo "Missing toybox binary"
+    echo "Toybox binary inaccessible"
     exit 1
   fi
 }
@@ -84,6 +84,7 @@ parse_options() {
       ;;
     p)
       PORT="$OPTARG"
+      assert_port_within_range "$PORT"
       ;;
     l)
       LOCAL=true
@@ -115,7 +116,6 @@ parse_options() {
 
 # Host a server
 server() {
-  assert_port_within_range "$PORT"
   assert_port_available "$PORT"
 
   # Handle arguments that should be given to netcat
@@ -135,8 +135,6 @@ server() {
 
 # Connect to a client
 client() {
-  assert_port_within_range "$PORT"
-
   [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
   toybox nc "$ADDRESS" "$PORT"
   [[ "$INTERACTIVE" == true ]] && stty sane
