@@ -75,7 +75,7 @@ assert_port_available() {
 
 # Parse arguments passed to us and set relevant variables
 parse_options() {
-  while getopts ":hp:cdl:C:Lt" opt
+  while getopts ":hp:c:dlC:Lt" opt
   do
     case "$opt" in
     h)
