@@ -7,11 +7,11 @@ ADDRESS="localhost"
 
 # Display usage for this script
 usage() {
-  echo "Insecure shelling via netcat
+  echo "Insecure shelling via netcat (client)
 
 Usage: $0 [-h] [-p PORT] [-C ADDRESS] [-L] [-t]
   -h            Show this screen
-  -p PORT       Port to listen/connect on (default: $PORT)
+  -p PORT       Port to connect on (default: $PORT)
   -C ADDRESS    Connect to an open session (default: $ADDRESS)
   -L            Connect to an open localhost session
   -t            Use raw TTY for interactivity"

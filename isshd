@@ -8,11 +8,11 @@ LOCAL=false
 
 # Display usage for this script
 usage() {
-  echo "Insecure shelling via netcat
+  echo "Insecure shelling via netcat (server)
 
 Usage: $0 [-h] [-p PORT] [-c COMMAND] [-d] [-l]
   -h            Show this screen
-  -p PORT       Port to listen/connect on (default: $PORT)
+  -p PORT       Port to listen on (default: $PORT)
   -c COMMAND    Command to run when client connects (default: $COMMAND)
   -d            Fork to background; run as daemon
   -l            Only allow localhost connections"
