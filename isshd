@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+# Options
+PORT=65432
+COMMAND="sh 2>&1"
+DAEMON=false
+LOCAL=false
+
+# Display usage for this script
+usage() {
+  echo "Insecure shelling via netcat
+
+Usage: $0 [-h] [-p PORT] [-c COMMAND] [-d] [-l]
+  -h            Show this screen
+  -p PORT       Port to listen/connect on (default: $PORT)
+  -c COMMAND    Command to run when client connects (default: $COMMAND)
+  -d            Fork to background; run as daemon
+  -l            Only allow localhost connections"
+}
+
+# Make sure we have everything we need to run
+assert_dependencies() {
+  if ! command -v toybox &>/dev/null
+  then
+    echo "Toybox binary inaccessible"
+    exit 1
+  fi
+}
+
+# Check if port is out of range
+is_port_within_range() {
+  [[ "$1" -gt 1 && "$1" -lt 65535 ]]
+}
+
+# Bail if port is out of range
+assert_port_within_range() {
+  if ! is_port_within_range "$1"
+  then
+    echo "Port is out of range (1-65535): $1"
+    exit 1
+  fi
+}
+
+# Check if port is in use currently
+is_port_available() {
+  ! toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$1" &>/dev/null
+}
+
+# Bail if port is taken
+assert_port_available() {
+  if ! is_port_available "$1"
+  then
+    echo "Port is in use: $1"
+    exit 1
+  fi
+}
+
+# Parse arguments passed to us and set relevant variables
+parse_options() {
+  while getopts ":hp:c:dl" opt
+  do
+    case "$opt" in
+    h)
+      usage
+      exit 0
+      ;;
+    p)
+      PORT="$OPTARG"
+      assert_port_within_range "$PORT"
+      ;;
+    c)
+      COMMAND="$OPTARG"
+      ;;
+    d)
+      DAEMON=true
+      ;;
+    l)
+      LOCAL=true
+      ;;
+    *)
+      usage
+      exit 1
+      ;;
+    esac
+  done
+}
+
+# Host a server
+server() {
+  assert_port_available "$PORT"
+
+  # Handle arguments that should be given to netcat
+  nc_args=(
+    "-L"
+    "-p" "$PORT"
+  )
+  [[ "$LOCAL" == true ]] && nc_args+=("-s" "localhost")
+
+  if [[ "$DAEMON" == true ]]
+  then
+    toybox setsid toybox nc "${nc_args[@]}" sh -c "$COMMAND" &
+  else
+    toybox nc "${nc_args[@]}" sh -c "$COMMAND"
+  fi
+}
+
+parse_options "$@"
+assert_dependencies
+server

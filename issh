@@ -1,19 +1,7 @@
 #!/usr/bin/env bash
 
-# Constants
-MODE_SERVER="server"
-MODE_CLIENT="client"
-
-# Global options
-MODE="$MODE_SERVER"
+# Options
 PORT=65432
-
-# Server options
-COMMAND="sh 2>&1"
-DAEMON=false
-LOCAL=false
-
-# Client options
 INTERACTIVE=false
 ADDRESS="localhost"
 
@@ -21,16 +9,9 @@ ADDRESS="localhost"
 usage() {
   echo "Insecure shelling via netcat
 
-Usage: $0 [-h] [-p PORT] [-c COMMAND] [-d] [-l] [-C ADDRESS] [-L] [-t]
+Usage: $0 [-h] [-p PORT] [-C ADDRESS] [-L] [-t]
   -h            Show this screen
   -p PORT       Port to listen/connect on (default: $PORT)
-
-Server options:
-  -c COMMAND    Command to run when client connects (default: $COMMAND)
-  -d            Fork to background; run as daemon
-  -l            Only allow localhost connections
-
-Client options:
   -C ADDRESS    Connect to an open session (default: $ADDRESS)
   -L            Connect to an open localhost session
   -t            Use raw TTY for interactivity"
@@ -59,23 +40,9 @@ assert_port_within_range() {
   fi
 }
 
-# Check if port is in use currently
-is_port_available() {
-  ! toybox netstat -lpn 2>/dev/null | toybox grep -w ".*:$1" &>/dev/null
-}
-
-# Bail if port is taken
-assert_port_available() {
-  if ! is_port_available "$1"
-  then
-    echo "Port is in use: $1"
-    exit 1
-  fi
-}
-
 # Parse arguments passed to us and set relevant variables
 parse_options() {
-  while getopts ":hp:c:dlC:Lt" opt
+  while getopts ":hp:C:Lt" opt
   do
     case "$opt" in
     h)
@@ -85,15 +52,6 @@ parse_options() {
     p)
       PORT="$OPTARG"
       assert_port_within_range "$PORT"
-      ;;
-    c)
-      COMMAND="$OPTARG"
-      ;;
-    d)
-      DAEMON=true
-      ;;
-    l)
-      LOCAL=true
       ;;
     C)
       MODE="$MODE_CLIENT"
@@ -114,26 +72,7 @@ parse_options() {
   done
 }
 
-# Host a server
-server() {
-  assert_port_available "$PORT"
-
-  # Handle arguments that should be given to netcat
-  nc_args=(
-    "-L"
-    "-p" "$PORT"
-  )
-  [[ "$LOCAL" == true ]] && nc_args+=("-s" "localhost")
-
-  if [[ "$DAEMON" == true ]]
-  then
-    toybox setsid toybox nc "${nc_args[@]}" sh -c "$COMMAND" &
-  else
-    toybox nc "${nc_args[@]}" sh -c "$COMMAND"
-  fi
-}
-
-# Connect to a server
+# Connect to host
 client() {
   [[ "$INTERACTIVE" == true ]] && stty raw -echo icrnl opost
   toybox nc "$ADDRESS" "$PORT"
@@ -143,10 +82,3 @@ client() {
 parse_options "$@"
 assert_dependencies
 
-if [[ "$MODE" == "$MODE_SERVER" ]]
-then
-  server
-elif [[ "$MODE" == "$MODE_CLIENT" ]]
-then
-  client
-fi
